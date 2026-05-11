@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PoC Avvera - Home Page</title>
+    <title>PoC Avvera - Home</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; max-width: 400px; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #005fb2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button { width: 100%; padding: 12px; background-color: #005fb2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: background 0.3s; }
+        button:disabled { background-color: #999; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -20,41 +21,39 @@
         
         <input type="text" id="cf" placeholder="Inserisci Codice Fiscale">
         <input type="password" placeholder="Password (qualsiasi)">
-        <button onclick="login()">Accedi all'Area Riservata</button>
+        <button id="loginBtn" onclick="login()">Accedi all'Area Riservata</button>
     </div>
 
     <script>
         function login() {
             const cf = document.getElementById('cf').value;
-            if (cf) {
-                // 1. TENTATIVO API UFFICIALE: Chiudiamo la sessione di Agentforce
-                try {
-                    if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
-                        embeddedservice_bootstrap.utilAPI.clearSession();
-                    }
-                } catch(e) {
-                    console.log("Impossibile pulire la sessione via API", e);
-                }
-
-                // 2. PULIZIA MANUALE (Bulletproof per la PoC):
-                // Cancelliamo le tracce della chat di Salesforce dalla memoria del browser
-                Object.keys(localStorage).forEach(key => {
-                    if (key.includes('embeddedservice') || key.includes('ESW')) {
-                        localStorage.removeItem(key);
-                    }
-                });
-                Object.keys(sessionStorage).forEach(key => {
-                    if (key.includes('embeddedservice') || key.includes('ESW')) {
-                        sessionStorage.removeItem(key);
-                    }
-                });
-
-                // 3. Salviamo il nuovo CF e andiamo all'area riservata
-                localStorage.setItem('session_cf', cf);
-                window.location.href = 'area-riservata.html';
-            } else {
+            if (!cf) {
                 alert('Per procedere, inserisci un Codice Fiscale per la demo.');
+                return;
             }
+
+            // Disabilita il bottone per evitare doppi click
+            const btn = document.getElementById('loginBtn');
+            btn.innerText = "Chiusura sessione chat in corso...";
+            btn.disabled = true;
+
+            // 1. Chiusura pulita della sessione tramite API ufficiale
+            if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
+                try {
+                    embeddedservice_bootstrap.utilAPI.clearSession();
+                    console.log("Comando clearSession inviato a Salesforce.");
+                } catch(e) {
+                    console.log("Nessuna sessione attiva da chiudere o errore API", e);
+                }
+            }
+
+            // 2. Salviamo il CF per la prossima pagina
+            localStorage.setItem('session_cf', cf);
+
+            // 3. Aspettiamo 1.5 secondi per permettere a Salesforce di pulire i DB del browser
+            setTimeout(() => {
+                window.location.href = 'area-riservata.html';
+            }, 1500);
         }
     </script>
 
