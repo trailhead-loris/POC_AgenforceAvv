@@ -3,263 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avvera – Accesso</title>
+    <title>PoC Avvera - Home (DEBUG MODE)</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --blue:    #005fb2;
-            --blue-dk: #004a8c;
-            --blue-lt: #e8f1fb;
-            --text:    #1a1e2e;
-            --muted:   #6b7280;
-            --border:  #dde3ef;
-            --bg:      #f4f7fc;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-        }
-
-        /* subtle grid pattern */
-        body::before {
-            content: '';
-            position: fixed; inset: 0;
-            background-image:
-                linear-gradient(var(--border) 1px, transparent 1px),
-                linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 40px 40px;
-            opacity: .45;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .card {
-            position: relative; z-index: 1;
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            box-shadow: 0 8px 40px rgba(0,95,178,.10);
-            padding: 48px 44px;
-            width: 100%;
-            max-width: 420px;
-            animation: rise .5s cubic-bezier(.22,1,.36,1) both;
-        }
-
-        @keyframes rise {
-            from { opacity:0; transform: translateY(20px); }
-            to   { opacity:1; transform: translateY(0); }
-        }
-
-        .badge {
-            display: inline-block;
-            background: var(--bg);
-            color: var(--muted);
-            border: 1px solid var(--border);
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-family: 'DM Serif Display', serif;
-            font-size: 28px;
-            color: var(--text);
-            margin-bottom: 6px;
-        }
-
-        .subtitle {
-            font-size: 14px;
-            color: var(--muted);
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text);
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-
-        .field { margin-bottom: 18px; }
-
-        input {
-            width: 100%;
-            padding: 13px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-family: inherit;
-            font-size: 15px;
-            color: var(--text);
-            background: var(--bg);
-            transition: border-color .2s, box-shadow .2s;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(0,95,178,.12);
-            background: #fff;
-        }
-
-        input::placeholder { color: #b0b8c8; }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            background: var(--blue);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-family: inherit;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 6px;
-            transition: background .2s, transform .1s, opacity .2s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn:hover:not(:disabled) { background: var(--blue-dk); }
-        .btn:active:not(:disabled) { transform: scale(.98); }
-        .btn:disabled { opacity: .65; cursor: not-allowed; }
-
-        .spinner {
-            display: none;
-            width: 18px; height: 18px;
-            border: 2.5px solid rgba(255,255,255,.4);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
-            margin: 0 auto;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .note {
-            margin-top: 22px;
-            font-size: 12px;
-            color: var(--muted);
-            text-align: center;
-            line-height: 1.6;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-
-        .note strong { color: var(--blue); }
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; max-width: 400px; }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 6px; box-sizing: border-box; }
+        button { background-color: #005fb2; color: white; border: none; font-weight: bold; cursor: pointer; }
+        .console-box { margin-top: 20px; font-family: monospace; font-size: 11px; color: #333; text-align: left; background: #eef; padding: 10px; width: 100%; box-sizing: border-box; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <span class="badge">Area pubblica</span>
-        <h1>Accedi ad Avvera</h1>
-        <p class="subtitle">La chat in questa pagina è pubblica e non conosce il tuo profilo. Accedi per un'esperienza personalizzata.</p>
+    <div class="container">
+        <span style="background: #eee; padding: 4px 10px; border-radius: 10px; font-size: 12px;">AREA PUBBLICA (Anonima)</span>
+        <h1>Accedi alla Demo</h1>
+        
+        <input type="text" id="cf" placeholder="Inserisci Codice Fiscale">
+        <input type="password" placeholder="Password (qualsiasi)">
+        <button id="loginBtn" onclick="login()">Accedi e Forza Nuova Chat</button>
 
-        <div class="field">
-            <label for="cf">Codice Fiscale</label>
-            <input type="text" id="cf" placeholder="Es. RSSMRA80A01H501U" autocomplete="off" maxlength="16">
-        </div>
-        <div class="field">
-            <label for="pwd">Password</label>
-            <input type="password" id="pwd" placeholder="Qualsiasi valore">
-        </div>
-
-        <button class="btn" id="loginBtn" onclick="login()">
-            <span id="btnLabel">Accedi all'Area Riservata</span>
-            <div class="spinner" id="spinner"></div>
-        </button>
-
-        <p class="note">
-            <strong>PoC dimostrativo</strong> — nessun dato viene inviato a server esterni.
-        </p>
+        <div class="console-box" id="ui-logs">Aperti i DevTools (F12) per i log completi.</div>
     </div>
 
     <script>
-        /* -------------------------------------------------------
-           Pulizia profonda di tutti i dati Salesforce / Agentforce
-           Chiamata sia al login (fresh session) sia al caricamento
-           della pagina pubblica (chi arriva dal logout)
-        ------------------------------------------------------- */
-        async function wipeSalesforceData() {
-            // 1. API ufficiale (se il widget è già caricato)
-            try {
-                if (window.embeddedservice_bootstrap?.utilAPI) {
-                    embeddedservice_bootstrap.utilAPI.clearSession();
-                }
-            } catch (e) {}
+        function logMsg(msg) {
+            console.log(msg);
+            document.getElementById('ui-logs').innerHTML += `<br>> ${msg}`;
+        }
 
-            // 2. Storage classici
+        // LA STRATEGIA NUCLEARE (API + Cookie + Storage)
+        async function nuclearWipe() {
+            logMsg("[DEBUG-WIPE] 1. Inizio pulizia totale...");
+            
+            if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
+                try {
+                    logMsg("[DEBUG-WIPE] Richiamo API utilAPI.clearSession()...");
+                    embeddedservice_bootstrap.utilAPI.clearSession();
+                } catch(e) {
+                    console.warn("[DEBUG-WIPE] Errore clearSession:", e);
+                }
+            }
+
+            logMsg("[DEBUG-WIPE] 2. Distruzione Cookie Locali");
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+
+            logMsg("[DEBUG-WIPE] 3. Svuoto Local & Session Storage");
             localStorage.clear();
             sessionStorage.clear();
 
-            // 3. IndexedDB — qui Salesforce persiste l'ID conversazione
-            if (window.indexedDB?.databases) {
+            logMsg("[DEBUG-WIPE] 4. Svuoto IndexedDB");
+            if (window.indexedDB && window.indexedDB.databases) {
                 try {
                     const dbs = await window.indexedDB.databases();
-                    await Promise.all(dbs.map(db => new Promise(res => {
-                        const req = window.indexedDB.deleteDatabase(db.name);
-                        req.onsuccess = req.onerror = req.onblocked = res;
-                    })));
-                } catch (e) {}
+                    for (let db of dbs) {
+                        window.indexedDB.deleteDatabase(db.name);
+                        console.log("[DEBUG-WIPE] DB Eliminato:", db.name);
+                    }
+                } catch(e) {}
             }
-
-            // 4. Piccola pausa per lasciar completare operazioni async interne
-            await new Promise(r => setTimeout(r, 300));
+            logMsg("[DEBUG-WIPE] Pulizia completata.");
         }
-
-        // Pulizia preventiva al caricamento della pagina pubblica
-        wipeSalesforceData();
 
         async function login() {
-            const cf = document.getElementById('cf').value.trim().toUpperCase();
-            if (!cf) { alert('Inserisci un Codice Fiscale.'); return; }
+            const cf = document.getElementById('cf').value;
+            if (!cf) return alert('Inserisci il CF');
 
-            const btn    = document.getElementById('loginBtn');
-            const label  = document.getElementById('btnLabel');
-            const spin   = document.getElementById('spinner');
+            document.getElementById('loginBtn').innerText = "Distruzione vecchia chat...";
+            
+            // Aspettiamo che il reset nucleare finisca
+            await nuclearWipe();
 
-            btn.disabled  = true;
-            label.style.display = 'none';
-            spin.style.display  = 'block';
-
-            await wipeSalesforceData();
-
-            // Salviamo il CF per la pagina riservata
+            // Salviamo SOLO il CF per la pagina dopo
             localStorage.setItem('session_cf', cf);
-
-            window.location.href = 'area-riservata.html';
+            
+            logMsg("[DEBUG-WIPE] Redirect all'Area Riservata tra 1s...");
+            setTimeout(() => { window.location.href = 'area-riservata.html'; }, 1000);
         }
 
-        // Consenti login anche con Enter
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Enter') login();
-        });
-    </script>
-
-    <!-- ============================================================
-         SNIPPET AGENTFORCE — AREA PUBBLICA
-         Viene caricato normalmente: nessun hidden pre-chat field.
-    ============================================================= -->
-    <script type='text/javascript'>
+        // --- SETUP AGENTFORCE CON LISTENERS ---
         function initEmbeddedMessaging() {
             try {
-                embeddedservice_bootstrap.settings.language = 'it';
+                logMsg("[AGENTFORCE] Avvio Init (Pubblico)...");
+                embeddedservice_bootstrap.settings.language = 'it'; 
+
+                // Event Listeners per capire cosa fa Salesforce
+                const events = ["onEmbeddedMessagingReady", "onEmbeddedMessagingSessionCreated", "onEmbeddedMessagingConversationOpened"];
+                events.forEach(evt => {
+                    window.addEventListener(evt, (e) => console.log(`[EVENTO SF] ${evt}`, e ? e.detail : ''));
+                });
+
                 embeddedservice_bootstrap.init(
                     '00DMA000004YOm0',
                     'Avvera',
@@ -267,14 +101,10 @@
                     { scrt2URL: 'https://ssg-ai--avveraai.sandbox.my.salesforce-scrt.com' }
                 );
             } catch (err) {
-                console.error('Error loading Embedded Messaging:', err);
+                console.error('Error loading Embedded Messaging: ', err);
             }
-        }
+        };
     </script>
-    <script type='text/javascript'
-        src='https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778503178330/assets/js/bootstrap.min.js'
-        onload='initEmbeddedMessaging()'>
-    </script>
-
+    <script type='text/javascript' src='https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778503178330/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
 </body>
 </html>
