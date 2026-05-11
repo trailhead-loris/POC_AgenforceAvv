@@ -8,7 +8,8 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #e3f2fd; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .container { background: white; padding: 40px; border-radius: 12px; border: 2px solid #2196f3; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; }
         .user-info { background: #f1f8ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #2196f3; }
-        .logout { color: #d32f2f; text-decoration: none; font-size: 14px; margin-top: 20px; display: inline-block; font-weight: bold; cursor: pointer; }
+        .logout { background-color: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; margin-top: 20px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        .logout:disabled { background-color: #999; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -22,10 +23,9 @@
             <span id="cfDisplay" style="font-family: monospace; font-size: 18px; font-weight: bold;">---</span>
         </div>
 
-        <p style="font-size: 14px; color: #555;">Iniziando una chat, Agentforce caricherà ora il tuo profilo tramite la variabile nascosta.</p>
+        <p style="font-size: 14px; color: #555;">Avviando una nuova chat, Agentforce caricherà il tuo profilo tramite la variabile nascosta.</p>
         
-        <!-- Bottone Logout che lancia la funzione di pulizia -->
-        <a class="logout" onclick="logout()">Esci e torna alla Home</a>
+        <button id="logoutBtn" class="logout" onclick="logout()">Esci e torna alla Home</button>
     </div>
 
     <script>
@@ -33,23 +33,29 @@
         const userCF = localStorage.getItem('session_cf') || "UTENTE_SCONOSCIUTO";
         document.getElementById('cfDisplay').innerText = userCF;
 
-        // 2. Funzione di Logout
+        // 2. Funzione di Logout (con pulizia API asincrona)
         function logout() {
-            // Chiudiamo la sessione di Agentforce via API
-            try {
-                if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
+            const btn = document.getElementById('logoutBtn');
+            btn.innerText = "Pulizia sessione in corso...";
+            btn.disabled = true;
+
+            // Chiudiamo la sessione di Agentforce via API ufficiale
+            if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
+                try {
                     embeddedservice_bootstrap.utilAPI.clearSession();
+                    console.log("Comando clearSession inviato a Salesforce.");
+                } catch(e) {
+                    console.log("Nessuna sessione attiva o errore", e);
                 }
-            } catch(e) {
-                console.log("Errore chiusura sessione", e);
             }
 
-            // Pulizia totale della memoria del browser per essere sicuri
-            localStorage.clear();
-            sessionStorage.clear();
+            // Rimuoviamo solo il nostro CF, NON tocchiamo le chiavi di Salesforce
+            localStorage.removeItem('session_cf');
 
-            // Torniamo alla home pubblica
-            window.location.href = 'index.html';
+            // Attendiamo 1.5 secondi prima del redirect per permettere a Salesforce di finire il lavoro
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
         }
 
         // 3. Inizializzazione Agentforce
@@ -57,7 +63,7 @@
             try {
                 embeddedservice_bootstrap.settings.language = 'it'; 
 
-                // Aspettiamo che il bootstrap sia pronto prima di settare i campi hidden
+                // Impostiamo il pre-chat hidden appena il widget è pronto per le nuove sessioni
                 window.addEventListener("onEmbeddedMessagingReady", () => {
                     console.log("Agentforce pronto! Invio codice fiscale come hidden pre-chat: " + userCF);
                     
@@ -66,7 +72,6 @@
                     });
                 });
 
-                // Avvio standard di Salesforce
                 embeddedservice_bootstrap.init(
                     '00DMA000004YOm0',
                     'Avvera',
