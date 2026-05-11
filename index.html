@@ -3,41 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PoC Avvera - Home Pubblica</title>
+    <title>PoC Avvera - Pagina Pubblica</title>
     <style>
-        body { font-family: sans-serif; background-color: #f4f4f9; padding: 50px; text-align: center; }
-        .login-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; }
-        input { display: block; margin: 10px auto; padding: 10px; width: 250px; }
-        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .status { color: #d9534f; font-weight: bold; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; max-width: 400px; }
+        h1 { color: #1a1a1a; margin-bottom: 10px; }
+        p { color: #666; margin-bottom: 30px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #005fb2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        button:hover { background-color: #004a8c; }
+        .badge { background: #e2e2e2; padding: 5px 10px; border-radius: 20px; font-size: 12px; color: #555; }
     </style>
 </head>
 <body>
 
-    <h1>Benvenuto nel Portale Demo (Pubblico)</h1>
-    <p>Questa è la pagina visibile a tutti. L'agente Agentforce qui non conosce il tuo Codice Fiscale.</p>
-
-    <div class="login-card">
-        <h3>Login di Esempio</h3>
+    <div class="container">
+        <span class="badge">AREA PUBBLICA</span>
+        <h1>Demo Portale</h1>
+        <p>Effettua il login per testare il passaggio dei dati ad Agentforce.</p>
+        
         <input type="text" id="cf" placeholder="Inserisci Codice Fiscale">
-        <input type="password" id="pwd" placeholder="Inserisci Password">
-        <button onclick="login()">Accedi all'Area Riservata</button>
+        <input type="password" id="pwd" placeholder="Password (qualsiasi)">
+        <button onclick="login()">Accedi</button>
     </div>
 
     <script>
         function login() {
-            const cfValue = document.getElementById('cf').value;
-            if (cfValue) {
-                // Salviamo il CF nel browser per passarlo alla pagina successiva
-                localStorage.setItem('userCF', cfValue);
+            const cfInput = document.getElementById('cf').value;
+            if (cfInput) {
+                // Salviamo il CF nel localStorage per recuperarlo nella pagina successiva
+                localStorage.setItem('session_cf', cfInput);
                 window.location.href = 'area-riservata.html';
             } else {
-                alert('Inserisci un codice fiscale (anche inventato)');
+                alert('Per favore, inserisci un Codice Fiscale per la demo.');
             }
         }
     </script>
 
-    <!-- SNIPPET AGENTFORCE PAGINA PUBBLICA -->
+    <!-- NUOVO SNIPPET AGENTFORCE (PUBBLICO) -->
     <script type='text/javascript'>
         function initEmbeddedMessaging() {
             try {
@@ -46,7 +49,7 @@
                 embeddedservice_bootstrap.init(
                     '00DMA000004YOm0',
                     'Avvera',
-                    'https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778254812911',
+                    'https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778503178330',
                     {
                         scrt2URL: 'https://ssg-ai--avveraai.sandbox.my.salesforce-scrt.com'
                     }
@@ -56,7 +59,7 @@
             }
         };
     </script>
-    <script type='text/javascript' src='https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778254812911/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+    <script type='text/javascript' src='https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778503178330/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
 
 </body>
 </html>
