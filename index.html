@@ -3,49 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PoC Avvera - Pagina Pubblica</title>
+    <title>PoC Avvera - Home</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; max-width: 400px; }
-        h1 { color: #1a1a1a; margin-bottom: 10px; }
-        p { color: #666; margin-bottom: 30px; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #005fb2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
-        button:hover { background-color: #004a8c; }
-        .badge { background: #e2e2e2; padding: 5px 10px; border-radius: 20px; font-size: 12px; color: #555; }
+        button { width: 100%; padding: 12px; background-color: #005fb2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <span class="badge">AREA PUBBLICA</span>
-        <h1>Demo Portale</h1>
-        <p>Effettua il login per testare il passaggio dei dati ad Agentforce.</p>
-        
+        <span style="color: #666; font-size: 12px;">AREA PUBBLICA</span>
+        <h1>Accedi alla Demo</h1>
         <input type="text" id="cf" placeholder="Inserisci Codice Fiscale">
-        <input type="password" id="pwd" placeholder="Password (qualsiasi)">
-        <button onclick="login()">Accedi</button>
+        <input type="password" placeholder="Password">
+        <button onclick="login()">Entra</button>
     </div>
 
     <script>
         function login() {
-            const cfInput = document.getElementById('cf').value;
-            if (cfInput) {
-                // Salviamo il CF nel localStorage per recuperarlo nella pagina successiva
-                localStorage.setItem('session_cf', cfInput);
+            const cf = document.getElementById('cf').value;
+            if (cf) {
+                localStorage.setItem('session_cf', cf);
                 window.location.href = 'area-riservata.html';
             } else {
-                alert('Per favore, inserisci un Codice Fiscale per la demo.');
+                alert('Inserisci un CF');
             }
         }
-    </script>
 
-    <!-- NUOVO SNIPPET AGENTFORCE (PUBBLICO) -->
-    <script type='text/javascript'>
         function initEmbeddedMessaging() {
             try {
                 embeddedservice_bootstrap.settings.language = 'it'; 
-
                 embeddedservice_bootstrap.init(
                     '00DMA000004YOm0',
                     'Avvera',
