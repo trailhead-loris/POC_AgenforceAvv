@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PoC Avvera - Home</title>
+    <title>PoC Avvera - Home Page</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; max-width: 400px; }
@@ -14,27 +14,56 @@
 <body>
 
     <div class="container">
-        <span style="color: #666; font-size: 12px;">AREA PUBBLICA</span>
+        <span style="color: #666; font-size: 12px; font-weight: bold; background: #eee; padding: 4px 10px; border-radius: 10px;">AREA PUBBLICA</span>
         <h1>Accedi alla Demo</h1>
+        <p style="color: #555; font-size: 14px; margin-bottom: 20px;">La chat in questa pagina non conosce il tuo Codice Fiscale.</p>
+        
         <input type="text" id="cf" placeholder="Inserisci Codice Fiscale">
-        <input type="password" placeholder="Password">
-        <button onclick="login()">Entra</button>
+        <input type="password" placeholder="Password (qualsiasi)">
+        <button onclick="login()">Accedi all'Area Riservata</button>
     </div>
 
     <script>
         function login() {
             const cf = document.getElementById('cf').value;
             if (cf) {
+                // 1. TENTATIVO API UFFICIALE: Chiudiamo la sessione di Agentforce
+                try {
+                    if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
+                        embeddedservice_bootstrap.utilAPI.clearSession();
+                    }
+                } catch(e) {
+                    console.log("Impossibile pulire la sessione via API", e);
+                }
+
+                // 2. PULIZIA MANUALE (Bulletproof per la PoC):
+                // Cancelliamo le tracce della chat di Salesforce dalla memoria del browser
+                Object.keys(localStorage).forEach(key => {
+                    if (key.includes('embeddedservice') || key.includes('ESW')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                Object.keys(sessionStorage).forEach(key => {
+                    if (key.includes('embeddedservice') || key.includes('ESW')) {
+                        sessionStorage.removeItem(key);
+                    }
+                });
+
+                // 3. Salviamo il nuovo CF e andiamo all'area riservata
                 localStorage.setItem('session_cf', cf);
                 window.location.href = 'area-riservata.html';
             } else {
-                alert('Inserisci un CF');
+                alert('Per procedere, inserisci un Codice Fiscale per la demo.');
             }
         }
+    </script>
 
+    <!-- SNIPPET AGENTFORCE (PUBBLICO) -->
+    <script type='text/javascript'>
         function initEmbeddedMessaging() {
             try {
                 embeddedservice_bootstrap.settings.language = 'it'; 
+
                 embeddedservice_bootstrap.init(
                     '00DMA000004YOm0',
                     'Avvera',
