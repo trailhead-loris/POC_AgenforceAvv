@@ -17,7 +17,7 @@
     <div class="container">
         <span style="color: #666; font-size: 12px; font-weight: bold; background: #eee; padding: 4px 10px; border-radius: 10px;">AREA PUBBLICA</span>
         <h1>Accedi alla Demo</h1>
-        <p style="color: #555; font-size: 14px; margin-bottom: 20px;">La chat in questa pagina non conosce il tuo Codice Fiscale.</p>
+        <p style="color: #555; font-size: 14px; margin-bottom: 20px;">La chat qui è pubblica e non conosce il tuo CF.</p>
         
         <input type="text" id="cf" placeholder="Inserisci Codice Fiscale">
         <input type="password" placeholder="Password (qualsiasi)">
@@ -25,35 +25,52 @@
     </div>
 
     <script>
-        function login() {
+        // Funzione asincrona che distrugge tutte le tracce della chat
+        async function wipeSalesforceData() {
+            // 1. Chiamata API ufficiale (se disponibile)
+            try {
+                if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
+                    embeddedservice_bootstrap.utilAPI.clearSession();
+                }
+            } catch(e) {}
+
+            // 2. Pulizia Storage classici
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // 3. LA MAGIA: Distruzione di IndexedDB (dove Salesforce nasconde l'ID della conversazione)
+            if (window.indexedDB && window.indexedDB.databases) {
+                try {
+                    const dbs = await window.indexedDB.databases();
+                    dbs.forEach(db => {
+                        window.indexedDB.deleteDatabase(db.name);
+                        console.log("Eliminato DB:", db.name);
+                    });
+                } catch(e) {
+                    console.error("Errore pulizia IndexedDB", e);
+                }
+            }
+        }
+
+        async function login() {
             const cf = document.getElementById('cf').value;
             if (!cf) {
-                alert('Per procedere, inserisci un Codice Fiscale per la demo.');
+                alert('Inserisci un Codice Fiscale.');
                 return;
             }
 
-            // Disabilita il bottone per evitare doppi click
             const btn = document.getElementById('loginBtn');
-            btn.innerText = "Chiusura sessione chat in corso...";
+            btn.innerText = "Creazione nuova sessione...";
             btn.disabled = true;
 
-            // 1. Chiusura pulita della sessione tramite API ufficiale
-            if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
-                try {
-                    embeddedservice_bootstrap.utilAPI.clearSession();
-                    console.log("Comando clearSession inviato a Salesforce.");
-                } catch(e) {
-                    console.log("Nessuna sessione attiva da chiudere o errore API", e);
-                }
-            }
+            // Aspettiamo che la pulizia profonda finisca
+            await wipeSalesforceData();
 
-            // 2. Salviamo il CF per la prossima pagina
+            // Riapplichiamo il nostro CF da passare alla pagina successiva
             localStorage.setItem('session_cf', cf);
-
-            // 3. Aspettiamo 1.5 secondi per permettere a Salesforce di pulire i DB del browser
-            setTimeout(() => {
-                window.location.href = 'area-riservata.html';
-            }, 1500);
+            
+            // Redirect
+            window.location.href = 'area-riservata.html';
         }
     </script>
 
@@ -62,7 +79,6 @@
         function initEmbeddedMessaging() {
             try {
                 embeddedservice_bootstrap.settings.language = 'it'; 
-
                 embeddedservice_bootstrap.init(
                     '00DMA000004YOm0',
                     'Avvera',
