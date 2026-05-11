@@ -8,7 +8,7 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #e3f2fd; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .container { background: white; padding: 40px; border-radius: 12px; border: 2px solid #2196f3; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; }
         .user-info { background: #f1f8ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #2196f3; }
-        .logout { background-color: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; margin-top: 20px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        .logout { background-color: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
         .logout:disabled { background-color: #999; cursor: not-allowed; }
     </style>
 </head>
@@ -16,57 +16,58 @@
 
     <div class="container">
         <span style="background: #2196f3; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;">AREA RISERVATA</span>
-        <h1>Benvenuto nel Portale</h1>
+        <h1>Benvenuto Cliente</h1>
         
         <div class="user-info">
-            <strong>Codice Fiscale loggato:</strong> <br>
+            <strong>Codice Fiscale identificato:</strong> <br>
             <span id="cfDisplay" style="font-family: monospace; font-size: 18px; font-weight: bold;">---</span>
         </div>
 
-        <p style="font-size: 14px; color: #555;">Avviando una nuova chat, Agentforce caricherà il tuo profilo tramite la variabile nascosta.</p>
+        <p style="font-size: 14px; color: #555;">La nuova chat riceverà il tuo codice fiscale (variabile nascosta).</p>
         
-        <button id="logoutBtn" class="logout" onclick="logout()">Esci e torna alla Home</button>
+        <button id="logoutBtn" class="logout" onclick="logout()">Logout</button>
     </div>
 
     <script>
-        // 1. Recupero il CF dal LocalStorage
-        const userCF = localStorage.getItem('session_cf') || "UTENTE_SCONOSCIUTO";
+        const userCF = localStorage.getItem('session_cf') || "SCONOSCIUTO";
         document.getElementById('cfDisplay').innerText = userCF;
 
-        // 2. Funzione di Logout (con pulizia API asincrona)
-        function logout() {
-            const btn = document.getElementById('logoutBtn');
-            btn.innerText = "Pulizia sessione in corso...";
-            btn.disabled = true;
-
-            // Chiudiamo la sessione di Agentforce via API ufficiale
-            if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
-                try {
+        // Stessa funzione di pulizia profonda per il logout
+        async function wipeSalesforceData() {
+            try {
+                if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
                     embeddedservice_bootstrap.utilAPI.clearSession();
-                    console.log("Comando clearSession inviato a Salesforce.");
-                } catch(e) {
-                    console.log("Nessuna sessione attiva o errore", e);
                 }
+            } catch(e) {}
+
+            localStorage.clear();
+            sessionStorage.clear();
+
+            if (window.indexedDB && window.indexedDB.databases) {
+                try {
+                    const dbs = await window.indexedDB.databases();
+                    dbs.forEach(db => window.indexedDB.deleteDatabase(db.name));
+                } catch(e) {}
             }
-
-            // Rimuoviamo solo il nostro CF, NON tocchiamo le chiavi di Salesforce
-            localStorage.removeItem('session_cf');
-
-            // Attendiamo 1.5 secondi prima del redirect per permettere a Salesforce di finire il lavoro
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
         }
 
-        // 3. Inizializzazione Agentforce
+        async function logout() {
+            const btn = document.getElementById('logoutBtn');
+            btn.innerText = "Pulizia in corso...";
+            btn.disabled = true;
+
+            await wipeSalesforceData();
+            window.location.href = 'index.html';
+        }
+
+        // Inizializzazione Agentforce
         function initEmbeddedMessaging() {
             try {
                 embeddedservice_bootstrap.settings.language = 'it'; 
 
-                // Impostiamo il pre-chat hidden appena il widget è pronto per le nuove sessioni
+                // Ascoltatore: Appena il widget è pronto per la nuova conversazione, passa il CF
                 window.addEventListener("onEmbeddedMessagingReady", () => {
-                    console.log("Agentforce pronto! Invio codice fiscale come hidden pre-chat: " + userCF);
-                    
+                    console.log("Agentforce pronto! Invio hidden pre-chat: codiceFiscale ->", userCF);
                     embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
                         "codiceFiscale": userCF
                     });
