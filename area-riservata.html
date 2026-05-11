@@ -5,40 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PoC Avvera - Area Riservata</title>
     <style>
-        body { font-family: sans-serif; background-color: #e8f5e9; padding: 50px; text-align: center; }
-        .dashboard { background: white; padding: 30px; border-radius: 8px; border: 2px solid #4caf50; display: inline-block; }
-        .highlight { color: #2e7d32; font-weight: bold; }
-        .logout { margin-top: 20px; display: block; color: #666; text-decoration: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e3f2fd; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 40px; border-radius: 12px; border: 2px solid #2196f3; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; }
+        h1 { color: #0d47a1; }
+        .user-info { background: #f1f8ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #2196f3; }
+        .logout { color: #d32f2f; text-decoration: none; font-size: 14px; margin-top: 20px; display: inline-block; }
     </style>
 </head>
 <body>
 
-    <div class="dashboard">
-        <h1>Area Riservata Cliente</h1>
-        <p>Benvenuto, <span id="displayCF" class="highlight">...</span>!</p>
-        <p>In questa pagina, Agentforce ha ricevuto il tuo <b>Codice Fiscale</b> tramite parametri nascosti.</p>
-        <a href="index.html" class="logout" onclick="localStorage.clear()">Esci (Logout)</a>
+    <div class="container">
+        <span style="background: #2196f3; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;">AREA RISERVATA</span>
+        <h1>Benvenuto Cliente</h1>
+        <p>In questa pagina simuliamo un utente loggato.</p>
+        
+        <div class="user-info">
+            <strong>Codice Fiscale Identificato:</strong> <br>
+            <span id="cfDisplay" style="font-family: monospace; font-size: 18px;">---</span>
+        </div>
+
+        <p><small>L'agente Agentforce ha ora accesso al tuo CF tramite variabile hidden.</small></p>
+        
+        <a href="index.html" class="logout" onclick="localStorage.clear()">Effettua il Logout</a>
     </div>
 
     <script>
-        // Recupero il CF salvato al login
-        const storedCF = localStorage.getItem('userCF') || "NON_IDENTIFICATO";
-        document.getElementById('displayCF').innerText = storedCF;
+        // Recupero il CF salvato nel localStorage
+        const userCF = localStorage.getItem('session_cf') || "NON_VALORIZZATO";
+        document.getElementById('cfDisplay').innerText = userCF;
 
         function initEmbeddedMessaging() {
             try {
                 embeddedservice_bootstrap.settings.language = 'it'; 
 
-                // --- LOGICA HIDDEN PARAMETERS ---
-                // Impostiamo il codice fiscale recuperato dal login
-                embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({"codiceFiscale": storedCF});
-                console.log("Agentforce inizializzato con CF:", storedCF);
-                // --------------------------------
+                // VALORIZZAZIONE CAMPO HIDDEN PER AGENTFORCE
+                embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
+                    "codiceFiscale": userCF
+                });
+                
+                console.log("Agentforce: Codice Fiscale passato con successo -> " + userCF);
 
                 embeddedservice_bootstrap.init(
                     '00DMA000004YOm0',
                     'Avvera',
-                    'https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778254812911',
+                    'https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778503178330',
                     {
                         scrt2URL: 'https://ssg-ai--avveraai.sandbox.my.salesforce-scrt.com'
                     }
@@ -48,7 +58,7 @@
             }
         };
     </script>
-    <script type='text/javascript' src='https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778254812911/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+    <script type='text/javascript' src='https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778503178330/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
 
 </body>
 </html>
