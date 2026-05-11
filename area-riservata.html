@@ -1,88 +1,91 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PoC Avvera - Area Riservata</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #e3f2fd; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        body { font-family: sans-serif; background-color: #e3f2fd; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .container { background: white; padding: 40px; border-radius: 12px; border: 2px solid #2196f3; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; max-width: 500px; }
-        .user-info { background: #f1f8ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #2196f3; }
-        .logout { background-color: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
-        .logout:disabled { background-color: #999; cursor: not-allowed; }
+        button { background-color: #d32f2f; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px;}
+        .console-box { margin-top: 20px; font-family: monospace; font-size: 11px; color: #fff; background: #222; padding: 10px; text-align: left; border-radius: 4px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <span style="background: #2196f3; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;">AREA RISERVATA</span>
-        <h1>Benvenuto Cliente</h1>
+        <span style="background: #2196f3; color: white; padding: 4px 10px; border-radius: 10px; font-size: 12px;">AREA RISERVATA</span>
+        <h1>Benvenuto</h1>
         
-        <div class="user-info">
-            <strong>Codice Fiscale identificato:</strong> <br>
-            <span id="cfDisplay" style="font-family: monospace; font-size: 18px; font-weight: bold;">---</span>
-        </div>
+        <p>CF Recuperato: <strong id="cfDisplay">...</strong></p>
+        
+        <button id="logoutBtn" onclick="logout()">Esegui Logout (Reset Chat)</button>
 
-        <p style="font-size: 14px; color: #555;">La nuova chat riceverà il tuo codice fiscale (variabile nascosta).</p>
-        
-        <button id="logoutBtn" class="logout" onclick="logout()">Logout</button>
+        <div class="console-box" id="ui-logs">Aspettando Agentforce...</div>
     </div>
 
     <script>
-        const userCF = localStorage.getItem('session_cf') || "SCONOSCIUTO";
-        document.getElementById('cfDisplay').innerText = userCF;
+        function logMsg(msg) {
+            console.log(msg);
+            document.getElementById('ui-logs').innerHTML += `<br>> ${msg}`;
+        }
 
-        // Stessa funzione di pulizia profonda per il logout
-        async function wipeSalesforceData() {
-            try {
-                if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
-                    embeddedservice_bootstrap.utilAPI.clearSession();
-                }
-            } catch(e) {}
+        const userCF = localStorage.getItem('session_cf');
+        document.getElementById('cfDisplay').innerText = userCF || "ERRORE: Nessun CF";
 
-            localStorage.clear();
-            sessionStorage.clear();
-
+        // Logout identico al login
+        async function logout() {
+            document.getElementById('logoutBtn').innerText = "Pulizia in corso...";
+            
+            if (window.embeddedservice_bootstrap && embeddedservice_bootstrap.utilAPI) {
+                try { embeddedservice_bootstrap.utilAPI.clearSession(); } catch(e) {}
+            }
+            localStorage.clear(); sessionStorage.clear();
+            document.cookie.split(";").forEach(function(c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
             if (window.indexedDB && window.indexedDB.databases) {
                 try {
                     const dbs = await window.indexedDB.databases();
-                    dbs.forEach(db => window.indexedDB.deleteDatabase(db.name));
+                    for (let db of dbs) window.indexedDB.deleteDatabase(db.name);
                 } catch(e) {}
             }
+            
+            setTimeout(() => { window.location.href = 'index.html'; }, 1000);
         }
 
-        async function logout() {
-            const btn = document.getElementById('logoutBtn');
-            btn.innerText = "Pulizia in corso...";
-            btn.disabled = true;
-
-            await wipeSalesforceData();
-            window.location.href = 'index.html';
-        }
-
-        // Inizializzazione Agentforce
+        // --- SETUP AGENTFORCE ---
         function initEmbeddedMessaging() {
             try {
+                logMsg("[AGENTFORCE] Avvio Init (Privato)...");
                 embeddedservice_bootstrap.settings.language = 'it'; 
 
-                // Ascoltatore: Appena il widget è pronto per la nuova conversazione, passa il CF
+                // Ascoltiamo l'evento Ready per passare il CF
                 window.addEventListener("onEmbeddedMessagingReady", () => {
-                    console.log("Agentforce pronto! Invio hidden pre-chat: codiceFiscale ->", userCF);
-                    embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
-                        "codiceFiscale": userCF
-                    });
+                    logMsg(`[EVENTO SF] onEmbeddedMessagingReady`);
+                    
+                    if (userCF) {
+                        logMsg(`[PRE-CHAT] Sto iniettando il campo hidden codiceFiscale: ${userCF}`);
+                        embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({
+                            "codiceFiscale": userCF
+                        });
+                        logMsg(`[PRE-CHAT] Iniezione completata. Apri la chat per verificare.`);
+                    } else {
+                        logMsg(`[PRE-CHAT] ATTENZIONE: Nessun CF trovato in memoria.`);
+                    }
                 });
+
+                // Altri eventi utili al debug
+                window.addEventListener("onEmbeddedMessagingSessionCreated", (e) => logMsg(`[EVENTO SF] onEmbeddedMessagingSessionCreated`));
+                window.addEventListener("onEmbeddedMessagingConversationOpened", (e) => logMsg(`[EVENTO SF] onEmbeddedMessagingConversationOpened`));
 
                 embeddedservice_bootstrap.init(
                     '00DMA000004YOm0',
                     'Avvera',
                     'https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778503178330',
-                    {
-                        scrt2URL: 'https://ssg-ai--avveraai.sandbox.my.salesforce-scrt.com'
-                    }
+                    { scrt2URL: 'https://ssg-ai--avveraai.sandbox.my.salesforce-scrt.com' }
                 );
             } catch (err) {
                 console.error('Error loading Embedded Messaging: ', err);
+                logMsg("[ERRORE FATALE] " + err.message);
             }
         };
     </script>
