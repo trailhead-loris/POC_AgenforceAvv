@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoC Avvera - Area Riservata</title>
+    <style>
+        body { font-family: sans-serif; background-color: #e8f5e9; padding: 50px; text-align: center; }
+        .dashboard { background: white; padding: 30px; border-radius: 8px; border: 2px solid #4caf50; display: inline-block; }
+        .highlight { color: #2e7d32; font-weight: bold; }
+        .logout { margin-top: 20px; display: block; color: #666; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <h1>Area Riservata Cliente</h1>
+        <p>Benvenuto, <span id="displayCF" class="highlight">...</span>!</p>
+        <p>In questa pagina, Agentforce ha ricevuto il tuo <b>Codice Fiscale</b> tramite parametri nascosti.</p>
+        <a href="index.html" class="logout" onclick="localStorage.clear()">Esci (Logout)</a>
+    </div>
+
+    <script>
+        // Recupero il CF salvato al login
+        const storedCF = localStorage.getItem('userCF') || "NON_IDENTIFICATO";
+        document.getElementById('displayCF').innerText = storedCF;
+
+        function initEmbeddedMessaging() {
+            try {
+                embeddedservice_bootstrap.settings.language = 'it'; 
+
+                // --- LOGICA HIDDEN PARAMETERS ---
+                // Impostiamo il codice fiscale recuperato dal login
+                embeddedservice_bootstrap.prechatAPI.setHiddenPrechatFields({"codiceFiscale": storedCF});
+                console.log("Agentforce inizializzato con CF:", storedCF);
+                // --------------------------------
+
+                embeddedservice_bootstrap.init(
+                    '00DMA000004YOm0',
+                    'Avvera',
+                    'https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778254812911',
+                    {
+                        scrt2URL: 'https://ssg-ai--avveraai.sandbox.my.salesforce-scrt.com'
+                    }
+                );
+            } catch (err) {
+                console.error('Error loading Embedded Messaging: ', err);
+            }
+        };
+    </script>
+    <script type='text/javascript' src='https://ssg-ai--avveraai.sandbox.my.site.com/ESWAvvera1778254812911/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+
+</body>
+</html>
